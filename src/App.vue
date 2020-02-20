@@ -2,10 +2,13 @@
   <div id="app">
       <div class="input_box">
           <input class="input_city" @keyup.enter="getDate" v-model="searchValue" type="text" name="">
-          <button class="search_btn" @click="test">УЗНАТЬ ПОГОДУ</button>
-      </div>
-    <router-link tag="button" exact active-class="font-bold" to="/">Сегодня</router-link>
-    <router-link tag="button" active-class="font-bold" to="/WeatherForecastDayTwo">Завтра</router-link>
+          <button class="search_btn" @click="getDate">УЗНАТЬ ПОГОДУ</button>      
+          <li v-for="(value, name) in allWeather" :key = "name">
+          <router-link exact active-class="active_btn" tag="button" :to="`/weather/${name}`">
+            <span>{{ name | showDate}}</span>
+          </router-link>
+          </li>
+      </div>          
     <router-view></router-view> 
   </div>
 </template>
@@ -18,49 +21,63 @@ export default {
     }
   },
   methods: {
-    test(){
-      this.$store.dispatch('getDate', this.searchValue)
-    },
     getDate(){
-      this.$http.get(this.url + this.searchValue+"&appid="+this.apiKey+"&lang=ru&&units=metric")
-      .then(response => (
-        this.parseDate(response.data),
-        this.showDate = true
-      ))
-      .catch(error => this.errorMessage = error , this.showDate = false );
-    },
-    parseDate(obj){
-      this.arrWeather.length = 0;
-      let objWeather = {};
-      for(let key of obj.list){
-        let date = key.dt_txt.slice(0,11)
-        if(typeof objWeather[date] == 'undefined')
-          objWeather[date] = []
-        objWeather[date].push({
-          "time":key.dt_txt.slice(11,20),
-          "temp":key.main.temp,
-          "pressure":key.main.pressure,
-          "humidity":key.main.humidity,
-          "description":key.weather[0].description,
-          "wind":key.wind.speed,
-          "icon":key.weather[0].icon,
-        });
-      }
-      for(let key in objWeather){
-        this.arrWeather.push(objWeather[key]);
-      }
-    },
-  }
+      this.$store.dispatch('getDate', this.searchValue)
+    }
+  },
+  computed:{
+    allWeather(){
+      return this.$store.getters.allWeather;
+    }
+  },
 }
 </script>
 
 <style>
-#app {
-  font-family: Avenir, Helvetica, Arial, sans-serif;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-  text-align: center;
-  color: #2c3e50;
-  margin-top: 60px;
+.input_box{
+  display: flex;
+  font-size: 12pt;
+  flex-wrap: wrap;
+}
+.active_btn{
+  background-color: #018f53;
+}
+.input_city{
+  width: 300px;
+  font-size: 12pt;
+  padding: 5px;
+  text-transform: uppercase;
+  justify-content: center;
+  display: flex;
+}
+.search_btn{
+  display: flex;
+  background-color: #00b568;
+  color: #fff;
+  border: 0px;
+  margin-right: 10px
+}
+button{
+  list-style: none;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background-color: #00b568;
+  padding: 10px;
+  min-width: 80px;
+  border: 0px;
+  color:#fff;
+}
+li {
+  list-style: none;
+  text-decoration: none;
+  color: #fff;
+}
+#app{
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  flex-direction: column;
+  margin: auto;
 }
 </style>
