@@ -8,19 +8,21 @@ Vue.use(VueAxios, axios)
 
 export default new Vuex.Store({
 actions:{
-	getDate(ctx, searchValue){
+	getData(ctx, searchValue){
 		axios
 		.get(this.state.url + searchValue+"&appid="+this.state.apiKey+"&lang=ru&&units=metric")
 		.then(response => (
-			ctx.commit('parseDate',response.data)
+			ctx.commit('parseObj',response.data)
 		))
+		.catch(error => ctx.commit('setError', error));
 	}
 },
 mutations:{
-	parseDate(state, obj){
+	parseObj(state, obj){
+		state.errorMessage = "";
 		state.objWeather = {}
 		for(let key of obj.list){
-			let date = key.dt_txt.slice(0,11)
+			let date = key.dt_txt.slice(0,10)
 			if(typeof state.objWeather[date] == 'undefined')
 				state.objWeather[date] = []
 			state.objWeather[date].push({
@@ -34,6 +36,12 @@ mutations:{
 			});
 		}
     },
+    setError(state, error){
+	if(error == "Request failed with status code 404")
+	state.errorMessage = "Не удалось найти погоду для указанного города";
+	else
+	state.errorMessage = "Произошла ошибка при отправлении запроса";
+    }
 },
 state:{
 	objWeather:{},
@@ -44,6 +52,9 @@ state:{
 getters:{
 	allWeather(state) {
 		return state.objWeather
+	},
+	getError(state){
+		return state.errorMessage
 	}
 }
 })

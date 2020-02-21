@@ -1,12 +1,19 @@
 <template>
 <div class="content_box">
-	<div class="weather" v-for="value in objWeather" :key ="value.id">
-		<h1>Время: {{value.time}}</h1>
-		<p><img :src="value.icon"></p>
-		<p>Температура: {{value.temp}}</p>
-		<p>Атмосферное давление: {{value.pressure}}</p>
-		<p>Влажность воздуха: {{value.temp}}</p>
-		<p>{{value.description}}</p>
+	<div class="weather" v-for="value in allWeather[date]" :key ="value.id">
+		<div class="time">
+			<span>{{value.time}}</span>
+		</div>
+		<div class="icon">
+			<img :src="value.icon">
+			<p>{{value.description}}</p>
+		</div>
+		<div class="weathervalue">
+		<p v-changestyle.temp="value.temp">Температура: {{value.temp}} °C</p>
+		<p>Атм.давление: {{value.pressure}} Па</p>
+		<p>Влажность воздуха: {{value.temp}} %</p>		
+		</div>
+
 	</div>
 </div>
 </template>
@@ -17,7 +24,6 @@ export default {
 	data(){
 		return {
 			date:this.$route.params.date,
-			objWeather:{}
 		}
 	},
 	computed:{
@@ -25,21 +31,10 @@ export default {
 			return this.$store.getters.allWeather;
 		}
 	},
-	watch: {
+	watch:{
 		$route(to) {
-			console.log(to);
 			this.date = to.params['date'];
-			this.objWeather = this.allWeather[this.date];
-		},
-		allWeather(){
-			console.log(this.date)
-			this.objWeather = this.allWeather[this.date]
-			console.log(this.objWeather)
 		}
-	},
-	created(){
-		console.log("++++")
-		this.objWeather = this.allWeather[this.date]
 	}
 }
 </script>
@@ -49,21 +44,40 @@ export default {
 h3 {
 margin: 40px 0 0;
 }
+.icon {
+	display: flex;
+	flex-direction: column;
+	align-items: center;
+	font-weight: bold;
+}
+.time {
+	display: flex;
+	justify-content: center;
+	font-size: 14pt;
+	font-weight: bold;
+	margin-top: 20px;
+	color: #535353;
+}
 .content_box{
 	display: flex;
 	flex-direction: row;
 	flex-wrap: wrap;
 	width: 1000px;
 	justify-content: center;
+	flex-wrap: wrap;
 	align-items: center;
-
 }
 p{
 	margin: 0;
 }
 .weather{
 	display: flex;
+	border-radius: 25px;
+	border: 2px solid #ff7400;
+	border-style: dotted;
 	flex-direction: column;
+	color: #535353;
+	padding: 15px;
 	margin: 10px;
 }
 ul {
